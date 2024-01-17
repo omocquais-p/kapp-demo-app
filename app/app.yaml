@@ -1,0 +1,29 @@
+apiVersion: kappctrl.k14s.io/v1alpha1
+kind: App
+metadata:
+  name: gitops-simple-app
+  annotations:
+    kapp.k14s.io/change-rule.create-order: "upsert after upserting rbac"
+    kapp.k14s.io/change-rule.delete-order: "delete before deleting rbac"
+spec:
+  serviceAccountName: default-ns-sa
+  syncPeriod: 1m
+  fetch:
+    - git:
+        url: https://github.com/omocquais-p/kapp-demo-app.git
+        ref: origin/master
+        subPath: gitops
+      path: gitops
+    - git:
+        url: https://github.com/omocquais-p/kapp-demo-app.git
+        ref: origin/master
+        subPath: gitops-values/dev
+      path: git
+  template:
+    - ytt:
+        paths:
+          - gitops/
+        valuesFrom:
+          - path: git/values.yml
+  deploy:
+    - kapp: {}

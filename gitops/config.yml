@@ -1,0 +1,41 @@
+#@ load("@ytt:data", "data")
+
+#@ def labels():
+simple-app: "demo"
+#@ end
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: default
+  name: simple-app-demo
+spec:
+  ports:
+    - port: #@ data.values.svc_port
+      targetPort: #@ data.values.app_port
+  selector: #@ labels()
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mydeploy-app-demo
+  name: mydeploy-app-demo
+spec:
+  selector:
+    matchLabels: #@ labels()
+  strategy: {}
+  replicas: 1
+  template:
+    metadata:
+      labels: #@ labels()
+    spec:
+      containers:
+        - image: omocquais/demo-simple-app:demo-kapp
+          name: demo-kapp
+          resources: {}
+          env:
+            - name: MY_CUSTOM_MESSAGE
+              value: #@ data.values.app_custom_message
