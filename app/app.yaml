@@ -25,5 +25,10 @@ spec:
           - gitops/
         valuesFrom:
           - path: git/values.yml
+    # use kbld to resolve image references to use digests
+    - kbld:
+        paths:
+          - gitops/.imgpkg/images.yml
+          - "-"
   deploy:
     - kapp: {}
